@@ -44,7 +44,7 @@ defmodule ExTus.Utils do
   def remove_chunk_info(file) do
     path = get_file_path(file)
     info_file = path <> ".ci"
-    Path.rm! info_file
+    File.rm! info_file
   end
 
 
@@ -73,13 +73,5 @@ defmodule ExTus.Utils do
     conn
     |> put_resp_header("Access-Control-Allow-Origin", "null")
     |> put_resp_header("Access-Control-Expose-Headers", "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata")
-  end
-
-  def ok(conn) do
-    {:ok, conn}
-  end
-
-  def stop(conn) do
-    {:stop, conn}
   end
 end
