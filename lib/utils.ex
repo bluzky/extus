@@ -7,52 +7,6 @@ defmodule ExTus.Utils do
     |> put_resp_header("Cache-Control", "no-store")
   end
 
-  def write_chunk_info(file, info = %{}) do
-    path = get_file_path(file)
-    info_file = path <> ".ci"
-    file = File.open!(info_file, [:write])
-
-    data = info
-      |> Enum.map(fn{k, v} ->
-        "#{k}=#{v}"
-      end)
-      |> Enum.join("\n")
-
-    IO.write(file, data)
-    File.close(file)
-  end
-
-  def read_chunk_info(file) do
-    path = get_file_path(file)
-    info_file = path <> ".ci"
-
-    # read info file content into an map
-    file = File.open!(info_file, [:read])
-    info = file
-      |> IO.stream(:line)
-      |> Enum.map(fn line ->
-          line
-          |> String.replace(~r/[\r\n]/, "")
-          |> String.split("=", parts: 2)
-          |> List.to_tuple
-        end)
-      |> Enum.into(Map.new)
-    File.close(file)
-    info
-  end
-
-  def remove_chunk_info(file) do
-    path = get_file_path(file)
-    info_file = path <> ".ci"
-    File.rm! info_file
-  end
-
-
-  def get_file_path(file)do
-    Path.join([ExTus.Config.upload_folder, file])
-    |> Path.absname
-  end
-
   def read_headers(conn) do
     conn.req_headers
     |> Enum.map(fn {k, v} -> {String.downcase(k), v} end)

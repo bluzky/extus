@@ -15,7 +15,10 @@ defmodule Extus.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger]]
+    [
+      mod: {ExTus.App, []},
+      extra_applications: [:logger]
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -28,6 +31,6 @@ defmodule Extus.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:persistent_ets, "~> 0.1.0"}]
   end
 end
