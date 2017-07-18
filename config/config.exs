@@ -4,7 +4,8 @@ use Mix.Config
 
 config :extus,
   storage: ExTus.Storage.Local,
-  base_dir: "upload"
+  base_dir: "upload",
+  clean_after: 24 * 60 * 60 # clean uncompleted upload after 1 day
 
 # config :extus,
 #   base_dir: "dev",

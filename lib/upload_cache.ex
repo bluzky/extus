@@ -4,13 +4,23 @@ end
 
 defmodule ExTus.UploadCache do
   use GenServer
+  require Logger
 
   # Client
+  @clean_after Application.get_env(:extus, :clean_after, nil)
 
  def start_link() do
   #  table = :ets.new(:upload_cache, [:named_table, :set, :protected])
    PersistentEts.new(:upload_cache, "upload_cache.tab", [:named_table, :set, :public])
    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+ end
+
+ def init(state) do
+   if @clean_after do
+     Process.send_after(self, :clean, @clean_after)
+   end
+
+   {:ok, state}
  end
 
  def put(item) do
@@ -61,5 +71,26 @@ defmodule ExTus.UploadCache do
 
  def handle_cast(request, state) do
    super(request, state)
+ end
+
+ def handle_info(:clean, state) do
+   Logger.info "Run ExTus cleaner at: #{inspect DateTime.utc_now}"
+   Process.send_after(self, :clean, @clean_after)
+   do_cleaning()
+   {:noreply, state}
+ end
+
+ def do_cleaning() do
+   :ets.tab2list(:upload_cache)
+   |> Enum.filter(fn {id, data} ->
+     time = DateTime.from_iso8601(data.started_at) |> DateTime.to_unix()
+     now = DateTime.utc_now |> DateTime.to_unix()
+     (now - time) > (24 * 60 * 60)
+   end)
+   |> Enum.map(fn ({key, _} = upload_info) ->
+     storage = Application.get_env(:extus, :storage)
+     if storage, do: storage.abort_upload(upload_info)
+     :ets.delete(:upload_cache, key)
+   end )
  end
 end
