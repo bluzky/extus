@@ -11,13 +11,15 @@ defmodule ExTus.Config do
   @extensions [
         "creation",
         #"expiration",
-        # "termination",
-        # "checksum",
+        "termination",
+        "checksum",
         #{}"creation-defer-length",
         # "checksum-trailer",          # todo
         #{}"concatenation",
         # "concatenation-unfinished",  # todo
     ]
+
+  @hash_algorithms ["sha1", "md5"]
 
   def upload_url, do: @upload_url
   def upload_folder, do: @upload_folder
@@ -28,4 +30,5 @@ defmodule ExTus.Config do
   def upload_finish_cb, do: @upload_finish_cb
   def upload_file_handler_cb, do: @upload_file_handler_cb
   def extensions, do: @extensions
+  def hash_algorithms, do: @hash_algorithms
 end

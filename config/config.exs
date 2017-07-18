@@ -2,6 +2,20 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :extus,
+  storage: ExTus.Storage.Local,
+  base_dir: "upload"
+
+# config :extus,
+#   base_dir: "dev",
+#   storage: ExTus.Storage.S3
+
+config :extus, :s3,
+  asset_host: "https://dsxymfc8fnnz2.cloudfront.net",
+  bucket: "mofiin",
+  virtual_host: true,
+  chunk_size: 5 * 1024 * 1024
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
