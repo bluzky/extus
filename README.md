@@ -18,7 +18,9 @@ end
 ```elixir
 config :extus,
   storage: ExTus.Storage.Local,
-  base_dir: "upload"
+  base_dir: "upload",
+  expired_after: 24 * 60 * 60 * 1000, #clean uncompleted upload after 1 day
+  clean_interval: 30 * 60 * 1000 # start cleaning job after 30min
 ```
 
 - `storage`: module which handle storage file application

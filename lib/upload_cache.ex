@@ -7,7 +7,8 @@ defmodule ExTus.UploadCache do
   require Logger
 
   # Client
-  @clean_after Application.get_env(:extus, :clean_after, nil)
+  @clean_interval Application.get_env(:extus, :clean_after, nil)
+  @expired_after (Application.get_env(:extus, :expired_after, 0) / 1000)
 
  def start_link() do
   #  table = :ets.new(:upload_cache, [:named_table, :set, :protected])
@@ -82,14 +83,15 @@ defmodule ExTus.UploadCache do
 
  def do_cleaning() do
    :ets.tab2list(:upload_cache)
-   |> Enum.filter(fn {id, data} ->
-     time = DateTime.from_iso8601(data.started_at) |> DateTime.to_unix()
+   |> Enum.filter(fn {_, data} ->
+     {:ok, time, _} = DateTime.from_iso8601(data.started_at)
+     time = DateTime.to_unix(time)
      now = DateTime.utc_now |> DateTime.to_unix()
-     (now - time) > (24 * 60 * 60)
+     (now - time) > @expire_after
    end)
-   |> Enum.map(fn ({key, _} = upload_info) ->
+   |> Enum.map(fn ({key, data}) ->
      storage = Application.get_env(:extus, :storage)
-     if storage, do: storage.abort_upload(upload_info)
+     if storage, do: storage.abort_upload(data)
      :ets.delete(:upload_cache, key)
    end )
  end
