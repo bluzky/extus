@@ -42,11 +42,11 @@ config :extus,
     chunk_size: 5 * 1024 * 1024
 ```
 
- - `virtual_host`: true if you want to use "https://#{bucket}.s3.amazonaws.com" host.
- default is "https://s3.amazonaws.com/#{bucket}"
- - `asset_host`: host which you use to serve uploaded files
- - `bucket`: name of s3 bucket
- - `chunk_size`: size of part for multipart upload
+- `virtual_host`: true if you want to use "https://#{bucket}.s3.amazonaws.com" host.
+   default is "https://s3.amazonaws.com/#{bucket}"
+- `asset_host`: host which you use to serve uploaded files
+- `bucket`: name of s3 bucket
+- `chunk_size`: size of part for multipart upload
 
 
 ## 2. Dependencies
@@ -56,6 +56,47 @@ If you use S3 to store file, add below dependencies
     {:hackney, "~> 1.6"}
 ```
 
-## 3. Implement your own storage
-  - In progress
- ~You can implement interface `Storage`~
+
+
+## 3. Usage
+
+**Add new controller for upload**
+
+```elixir
+defmodule MyApp.UploadController do
+  use MyApp.Web, :controller
+  use ExTus.Controller
+
+  # start upload file callback
+  def on_begin_upload(file_info) do
+    IO.inspect "create file: #{inspect file_info}"
+  end
+	
+  # Completed upload file callback
+  def on_complete_upload(file_info) do
+    IO.inspect "complete file: #{inspect file_info}"
+  end
+end
+```
+
+
+
+**Add route**
+
+```elixir
+scope "/files", MyApp do
+    options "/",  			TusController, :options
+    options "/:file",  		TusController, :options
+    match :head, "/:file",  TusController, :head
+    post "/",  				TusController, :post
+    patch "/:file",  		TusController, :patch
+    delete "/:file",  		TusController, :delete
+end
+```
+
+
+
+## 4. Implement your own storage
+
+- In progress
+   ~You can implement interface `Storage`~
