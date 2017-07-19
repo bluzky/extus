@@ -31,6 +31,7 @@ defmodule Extus.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:persistent_ets, "~> 0.1.0"}]
+    [{:persistent_ets, "~> 0.1.0"},
+    {:plug, "~> 1.3"}]
   end
 end

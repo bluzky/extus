@@ -1,8 +1,6 @@
 defmodule ExTus.Storage.S3 do
   # use ExTus.Storage
-
-  @base_dir Application.get_env(:extus, :base_dir)
-
+  
   def storage_dir() do
     time = DateTime.utc_now
     "#{time.year}/#{time.month}/#{time.day}"
@@ -17,7 +15,7 @@ defmodule ExTus.Storage.S3 do
   def initiate_file(file_name) do
     dir = storage_dir()
     filename = filename(file_name)
-    file_path = Path.join([@base_dir, dir, filename])
+    file_path = Path.join([base_dir, dir, filename])
 
 
     %{bucket: @bucket, path: file_path, opts: [], upload_id: nil}
@@ -80,9 +78,9 @@ defmodule ExTus.Storage.S3 do
     |> ExAws.S3.delete_object(file)
     |> ExAws.request([host: endpoint(bucket)])
   end
-
-  defp full_path(file_path) do
-    Path.join(@base_dir, file_path)
+  
+  defp base_dir() do
+   Application.get_env(:extus, :base_dir)
   end
 
   defp chunk_size do
