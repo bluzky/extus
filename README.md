@@ -33,11 +33,11 @@ config :extus,
 ```elixir
 config :extus,
   storage: ExTus.Storage.S3,
-  base_dir: "upload"
+  base_dir: "upload",
+	asset_host: "https://dsxymfc8fnnz2.cloudfront.net",
 
   config :extus, :s3,
     virtual_host: true,
-    asset_host: "https://dsxymfc8fnnz2.cloudfront.net",
     bucket: "mofiin",
     chunk_size: 5 * 1024 * 1024
 ```

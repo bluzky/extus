@@ -1,7 +1,5 @@
 defmodule ExTus.Storage.Local do
-  # use ExTus.Storage
-
-  @base_dir Application.get_env(:extus, :base_dir, "upload")
+  use ExTus.Storage
 
   def storage_dir() do
     time = DateTime.utc_now
@@ -18,7 +16,7 @@ defmodule ExTus.Storage.Local do
     dir = storage_dir()
     filename = filename(file_name)
 
-    File.mkdir_p!(Path.join(@base_dir, dir))
+    File.mkdir_p!(Path.join(base_dir(), dir))
     file_path = Path.join(dir, filename)
 
     full_path(file_path)
@@ -57,7 +55,7 @@ defmodule ExTus.Storage.Local do
   end
 
   def url(_file) do
-
+		
   end
 
   def delete(%{filename: file_path}) do
@@ -65,7 +63,9 @@ defmodule ExTus.Storage.Local do
     |> File.rm
   end
 
+	defp base_dir, do: Application.get_env(:extus, :base_dir, "upload")
+	
   defp full_path(file_path) do
-    Path.join(@base_dir, file_path)
+    Path.join(base_dir(), file_path)
   end
 end
