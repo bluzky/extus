@@ -16,6 +16,10 @@ defmodule ExTus.Controller do
       def post(conn, _params)do
         ExTus.Actions.post(conn, &on_begin_upload/1)
       end
+			
+			def complete_upload(conn, %{"file" => upload_id}) do
+				ExTus.Actions.complete_upload(conn, upload_id)
+			end
 
       def delete(conn, %{"file" => file} = params)do
         ExTus.Actions.delete(conn, file)

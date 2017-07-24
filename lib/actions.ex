@@ -110,17 +110,6 @@ defmodule ExTus.Actions do
         UploadCache.update(upload_info)
 
         if upload_info.offset >= upload_info.size do
-          rs = storage.complete_file(upload_info)
-
-          # if upload fail remove uploaded file
-          with {:error, err} <- rs do
-            Logger.warn inspect err
-            storage.abort_upload(upload_info)
-          end
-          
-          # remove cache info
-          UploadCache.delete(upload_info.identifier)
-
           if not is_nil(complete_cb) do
             complete_cb.(upload_info)
           end
@@ -191,6 +180,7 @@ defmodule ExTus.Actions do
     else
       case storage.delete(upload_info) do
         :ok ->
+					UploadCache.delete(upload_info.identifier)
           conn
           |> Utils.set_base_resp
           |> Utils.put_cors_headers
@@ -202,6 +192,33 @@ defmodule ExTus.Actions do
       end
     end
   end
+	
+	def complete_upload(conn, upload_id)do
+    upload_info = UploadCache.get(upload_id)
+
+    if is_nil(upload_info) do
+      conn
+      |> Utils.set_base_resp
+      |> resp(404, "Not Found")
+    else
+      storage.complete_file(upload_info)
+			|> case do
+				{:ok, _} ->
+					UploadCache.delete(upload_info.identifier)
+          conn
+          |> Utils.set_base_resp
+          |> Utils.put_cors_headers
+          |> resp(204, upload_info.filename)
+					
+				{:error, err} ->
+					Logger.warn inspect err
+					
+          conn
+          |> Utils.set_base_resp
+          |> resp(500, "Server Error")
+			end
+    end
+	end
 
   def handle_preflight_request(conn) do
     headers = Enum.into(conn.req_headers, Map.new)
