@@ -208,7 +208,7 @@ defmodule ExTus.Actions do
           conn
           |> Utils.set_base_resp
           |> Utils.put_cors_headers
-          |> resp(204, upload_info.filename)
+          |> resp(200, upload_info.filename)
 					
 				{:error, err} ->
 					Logger.warn inspect err
