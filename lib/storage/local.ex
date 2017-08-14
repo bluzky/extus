@@ -52,6 +52,10 @@ defmodule ExTus.Storage.Local do
   def abort_upload(%{filename: file}) do
     full_path(file)
     |> File.rm
+		|> case do
+			:ok -> {:ok, nil}
+			err -> err
+		end
   end
 
   def url(_file) do

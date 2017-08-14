@@ -179,13 +179,14 @@ defmodule ExTus.Actions do
       |> resp(404, "Not Found")
     else
       case storage.delete(upload_info) do
-        :ok ->
+        {:ok, _} ->
 					UploadCache.delete(upload_info.identifier)
           conn
           |> Utils.set_base_resp
           |> Utils.put_cors_headers
           |> resp(204, "No Content")
-        _ ->
+        err ->
+					Logger.error(inspect err)
           conn
           |> Utils.set_base_resp
           |> resp(500, "Server Error")

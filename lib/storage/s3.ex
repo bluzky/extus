@@ -42,8 +42,11 @@ defmodule ExTus.Storage.S3 do
         {_, etag} = Enum.find(headers, fn {k, _v} ->
           String.downcase(k) == "etag"
         end)
+				
+				etag = String.replace(etag, "\"", "")
+				
         parts = options[:parts] || []
-        parts = parts ++ [{part_id, etag}]
+        parts = parts ++ [[part_id, etag]]
 
         info = %{info | options: %{parts: parts, current_part: part_id}}
 
@@ -53,12 +56,15 @@ defmodule ExTus.Storage.S3 do
   end
 
   def complete_file(%{filename: file, identifier: upload_id, options: options}) do
-    parts = options[:parts] || []
+    parts = 
+			(options[:parts] || [])
+			|> Enum.sort_by(fn [head | tail] -> head end)
+			|> Enum.map(fn [id, tag] -> {id, tag} end)
 
     ""
     |> ExAws.S3.complete_multipart_upload(
         file, upload_id,
-        Enum.sort_by(parts, &elem(&1, 0))
+        parts
     )
     |> ExAws.request([host: endpoint(bucket())])
   end
@@ -73,7 +79,7 @@ defmodule ExTus.Storage.S3 do
     |> ExAws.request([host: endpoint(bucket())])
   end
 
-  def delete(file) do
+  def delete(%{identifier: upload_id, filename: file}) do
     ""
     |> ExAws.S3.delete_object(file)
     |> ExAws.request([host: endpoint(bucket())])
