@@ -56,51 +56,58 @@ defmodule ExTus.Actions do
     headers = Utils.read_headers(conn)
     {offset, _} = Integer.parse(headers["upload-offset"])
     upload_info = UploadCache.get(identifier)
-
-    [alg, checksum] = String.split(headers["upload-checksum"] || "_ _")
-    if not is_nil(headers["upload-checksum"]) and not alg in ExTus.Config.hash_algorithms do
+		
+    if is_nil(upload_info) do
       conn
       |> Utils.set_base_resp
-      |> resp(400, "Bad Request")
-    else
+      |> resp(404, "")
+		else
 
-      #%{size: current_offset} = File.stat!(file_path)
-      if  offset != upload_info.offset do
-        conn
-        |> Utils.set_base_resp
-        |> resp(409, "Conflict")
-      else
-        #read data Max chunk size is 8MB, if transferred data > 8MB, ignore it
-        case read_body(conn) do
-          {_, binary, conn} ->
-            data_length = byte_size(binary)
-            upload_info = Map.put(upload_info, :offset, data_length + upload_info.offset)
+	    [alg, checksum] = String.split(headers["upload-checksum"] || "_ _")
+	    if not is_nil(headers["upload-checksum"]) and not alg in ExTus.Config.hash_algorithms do
+	      conn
+	      |> Utils.set_base_resp
+	      |> resp(400, "Bad Request")
+	    else
 
-            # check Checksum if received a checksum digest
-            if alg in ExTus.Config.hash_algorithms do
-              alg = if alg == "sha1", do: "sha", else: alg
-              hash_val = :crypto.hash(String.to_atom(alg), binary)
-                |> Base.encode32()
+	      #%{size: current_offset} = File.stat!(file_path)
+	      if  offset != upload_info.offset do
+	        conn
+	        |> Utils.set_base_resp
+	        |> resp(409, "Conflict")
+	      else
+	        #read data Max chunk size is 8MB, if transferred data > 8MB, ignore it
+	        case read_body(conn) do
+	          {_, binary, conn} ->
+	            data_length = byte_size(binary)
+	            upload_info = Map.put(upload_info, :offset, data_length + upload_info.offset)
 
-              if checksum != hash_val do
-                conn
-                |> Utils.set_base_resp
-                |> resp(460, "Checksum Mismatch")
+	            # check Checksum if received a checksum digest
+	            if alg in ExTus.Config.hash_algorithms do
+	              alg = if alg == "sha1", do: "sha", else: alg
+	              hash_val = :crypto.hash(String.to_atom(alg), binary)
+	                |> Base.encode32()
 
-              else
-                write_append_data(conn, upload_info, binary, complete_cb)
-              end
-            else
-              write_append_data(conn, upload_info, binary, complete_cb)
-            end
-          {:error, _term} ->
-            conn
-            |> Utils.set_base_resp
-            |> resp(500, "Server error")
-        end
-      end
+	              if checksum != hash_val do
+	                conn
+	                |> Utils.set_base_resp
+	                |> resp(460, "Checksum Mismatch")
 
-    end
+	              else
+	                write_append_data(conn, upload_info, binary, complete_cb)
+	              end
+	            else
+	              write_append_data(conn, upload_info, binary, complete_cb)
+	            end
+	          {:error, _term} ->
+	            conn
+	            |> Utils.set_base_resp
+	            |> resp(500, "Server error")
+	        end
+	      end
+
+	    end
+		end
   end
 
   defp write_append_data(conn, upload_info, binary, complete_cb \\ nil) do

@@ -25,7 +25,6 @@ defmodule Extus.Cache.RedisStorage do
 	end
 	
 	def update(conn, key, data) do
-		IO.inspect(data)
 		Redix.command(conn, ["HSET", @storage_name, key, Poison.encode!(data)])
 	end
 	
@@ -41,9 +40,16 @@ defmodule Extus.Cache.RedisStorage do
 		end
 	end
 	
+	defp parse_data(nil) do
+		nil
+	end
+	
 	defp parse_data(data)do
-		Poison.decode!(data)
-		|> parse_value()
+		Poison.decode(data)
+		|> case do
+			{:ok, json} -> parse_value(json)
+			err -> nil
+		end
 	end
 	
 	defp parse_value(data) when is_map(data) do
