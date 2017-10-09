@@ -5,13 +5,13 @@ defmodule Extus.Mixfile do
     [app: :extus,
      version: "0.1.0",
      elixir: "~> 1.4",
-     licenses: "MIT",
-     maintainers: "bluesky.1289@gmail.com",
-     source_url: "https://github.com/bluzky/extus",
      description: "An implementation of resumable upload protocol TUS in Elixir",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     package: package(),
+     source_url: "https://github.com/bluzky/extus"
+   ]
   end
 
   # Configuration for the OTP application
@@ -25,6 +25,14 @@ defmodule Extus.Mixfile do
     ]
   end
 
+  def package() do
+    [
+      licenses: ["MIT"],
+      maintainers: ["Dung Nguyen", "bluesky.1289@gmail.com"],
+      links: %{github: "https://github.com/bluzky/extus"}
+    ]
+  end
+
   # Dependencies can be Hex packages:
   #
   #   {:my_dep, "~> 0.3.0"}
@@ -35,7 +43,10 @@ defmodule Extus.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:persistent_ets, "~> 0.1.0"},
-    {:plug, "~> 1.3"}]
+    [
+      {:persistent_ets, "~> 0.1.0"},
+      {:plug, "~> 1.3"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
+    ]
   end
 end

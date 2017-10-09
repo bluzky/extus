@@ -1,1 +1,5 @@
-%{"persistent_ets": {:hex, :persistent_ets, "0.1.0", "a9ea1d6e41094441bb7fd3ea6a5717b66de82343bc6a2899e678a5bad46e495b", [:mix], []}}
+%{"earmark": {:hex, :earmark, "1.2.3", "206eb2e2ac1a794aa5256f3982de7a76bf4579ff91cb28d0e17ea2c9491e46a4", [:mix], []},
+  "ex_doc": {:hex, :ex_doc, "0.17.1", "39f777415e769992e6732d9589dc5846ea587f01412241f4a774664c746affbb", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, optional: false]}]},
+  "mime": {:hex, :mime, "1.1.0", "01c1d6f4083d8aa5c7b8c246ade95139620ef8effb009edde934e0ec3b28090a", [:mix], []},
+  "persistent_ets": {:hex, :persistent_ets, "0.1.0", "a9ea1d6e41094441bb7fd3ea6a5717b66de82343bc6a2899e678a5bad46e495b", [:mix], []},
+  "plug": {:hex, :plug, "1.4.3", "236d77ce7bf3e3a2668dc0d32a9b6f1f9b1f05361019946aae49874904be4aed", [:mix], [{:cowboy, "~> 1.0.1 or ~> 1.1", [hex: :cowboy, optional: true]}, {:mime, "~> 1.0", [hex: :mime, optional: false]}]}}
