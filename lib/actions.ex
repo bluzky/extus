@@ -4,8 +4,10 @@ defmodule ExTus.Actions do
   alias ExTus.UploadInfo
   alias ExTus.UploadCache
   require Logger
-
-  @storage Application.get_env(:extus, :storage, ExTus.Storage.Local)
+ 
+  defp storage() do
+    Application.get_env(:extus, :storage, ExTus.Storage.Local)
+  end
 
   def options(conn)do
     conn
@@ -102,19 +104,20 @@ defmodule ExTus.Actions do
   end
 
   defp write_append_data(conn, upload_info, binary, complete_cb \\ nil) do
-    @storage.append_data(upload_info, binary)
+    storage.append_data(upload_info, binary)
     |> case do
       {:ok, upload_info} ->
         UploadCache.update(upload_info)
 
         if upload_info.offset >= upload_info.size do
-          rs = @storage.complete_file(upload_info)
+          rs = storage.complete_file(upload_info)
 
           # if upload fail remove uploaded file
-          if {:error, err} = rs do
+          with {:error, err} <- rs do
             Logger.warn inspect err
-            @storage.abort_upload(upload_info)
+            storage.abort_upload(upload_info)
           end
+          
           # remove cache info
           UploadCache.delete(upload_info.identifier)
 
@@ -151,7 +154,7 @@ defmodule ExTus.Actions do
          (meta["filename"] || "")
          |> Base.decode64!
 
-       {:ok, {identifier, filename}} = @storage.initiate_file(file_name)
+       {:ok, {identifier, filename}} = storage.initiate_file(file_name)
 
        info = %UploadInfo{
          identifier: identifier,
@@ -186,7 +189,7 @@ defmodule ExTus.Actions do
       |> Utils.set_base_resp
       |> resp(404, "Not Found")
     else
-      case @storage.delete(upload_info) do
+      case storage.delete(upload_info) do
         :ok ->
           conn
           |> Utils.set_base_resp

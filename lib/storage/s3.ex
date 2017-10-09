@@ -1,8 +1,6 @@
 defmodule ExTus.Storage.S3 do
-  # use ExTus.Storage
-
-  @base_dir Application.get_env(:extus, :base_dir)
-
+  use ExTus.Storage
+  
   def storage_dir() do
     time = DateTime.utc_now
     "#{time.year}/#{time.month}/#{time.day}"
@@ -17,11 +15,11 @@ defmodule ExTus.Storage.S3 do
   def initiate_file(file_name) do
     dir = storage_dir()
     filename = filename(file_name)
-    file_path = Path.join([@base_dir, dir, filename])
+    file_path = Path.join([base_dir, dir, filename])
 
 
-    %{bucket: @bucket, path: file_path, opts: [], upload_id: nil}
-    |> ExAws.S3.Upload.initialize([host: endpoint(bucket)])
+    %{bucket: "", path: file_path, opts: [], upload_id: nil}
+    |> ExAws.S3.Upload.initialize([host: endpoint(bucket())])
     |> case do
       {:ok, rs} -> {:ok, {rs.upload_id, file_path}}
       err -> err
@@ -37,7 +35,7 @@ defmodule ExTus.Storage.S3 do
 
     ""
     |> ExAws.S3.upload_part(file, upload_id, part_id, data, ["Content-Length": byte_size(data)])
-    |> ExAws.request([host: endpoint(bucket)])
+    |> ExAws.request([host: endpoint(bucket())])
     |> case do
       {:ok, response} ->
         %{headers: headers} = response
@@ -62,7 +60,7 @@ defmodule ExTus.Storage.S3 do
         file, upload_id,
         Enum.sort_by(parts, &elem(&1, 0))
     )
-    |> ExAws.request([host: endpoint(bucket)])
+    |> ExAws.request([host: endpoint(bucket())])
   end
 
   def url(file) do
@@ -72,17 +70,17 @@ defmodule ExTus.Storage.S3 do
   def abort_upload(%{identifier: upload_id, filename: file}) do
     ""
     |> ExAws.S3.abort_multipart_upload(file, upload_id)
-    |> ExAws.request([host: endpoint(bucket)])
+    |> ExAws.request([host: endpoint(bucket())])
   end
 
   def delete(file) do
     ""
     |> ExAws.S3.delete_object(file)
-    |> ExAws.request([host: endpoint(bucket)])
+    |> ExAws.request([host: endpoint(bucket())])
   end
-
-  defp full_path(file_path) do
-    Path.join(@base_dir, file_path)
+  
+  defp base_dir() do
+   Application.get_env(:extus, :base_dir)
   end
 
   defp chunk_size do
@@ -112,11 +110,6 @@ defmodule ExTus.Storage.S3 do
   end
 
   defp asset_host do
-    host_url = Application.get_env(:upp, :asset_host, host(bucket))
-
-    case host_url do
-      {:system, env_var} when is_binary(env_var) -> System.get_env(env_var)
-      url -> url
-    end
+    Application.get_env(:extus, :asset_host, host(bucket()))
   end
 end
