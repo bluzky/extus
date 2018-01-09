@@ -104,6 +104,7 @@ defmodule ExTus.Actions do
   end
 
   defp write_append_data(conn, upload_info, binary, complete_cb \\ nil) do
+    url = ""
     storage.append_data(upload_info, binary)
     |> case do
       {:ok, upload_info} ->
@@ -122,7 +123,7 @@ defmodule ExTus.Actions do
           UploadCache.delete(upload_info.identifier)
 
           if not is_nil(complete_cb) do
-            complete_cb.(upload_info)
+            url = complete_cb.(upload_info)
           end
         end
 
@@ -130,6 +131,7 @@ defmodule ExTus.Actions do
         |> Utils.set_base_resp
         |> Utils.put_cors_headers
         |> put_resp_header("Upload-Offset", "#{upload_info.offset}")
+        |> put_resp_header("URL", "#{url}")
         |> resp(204, "")
 
       {:error, err} ->
