@@ -170,7 +170,13 @@ defmodule ExTus.Actions do
          create_cb.(info)
        end
 
-       location = ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+       if Mix.env == :prod  do
+         scheme = :https
+       else
+         scheme = conn.scheme
+       end
+
+       location = ("#{scheme}://#{conn.host }:#{conn.port}")
           |> URI.merge(Path.join(ExTus.Config.upload_url, identifier))
           |> to_string
 
