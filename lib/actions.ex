@@ -4,7 +4,7 @@ defmodule ExTus.Actions do
   alias ExTus.UploadInfo
   alias ExTus.UploadCache
   require Logger
- 
+
   defp storage() do
     Application.get_env(:extus, :storage, ExTus.Storage.Local)
   end
@@ -118,7 +118,7 @@ defmodule ExTus.Actions do
             Logger.warn inspect err
             storage.abort_upload(upload_info)
           end
-          
+
           # remove cache info
           UploadCache.delete(upload_info.identifier)
 
@@ -170,13 +170,14 @@ defmodule ExTus.Actions do
          create_cb.(info)
        end
 
-       if Mix.env == :prod  do
+       if Mix.env == :prod do
          scheme = :https
+         location = ("#{scheme}://#{conn.host }")
        else
-         scheme = conn.scheme
+         location = ("#{conn.scheme}://#{conn.host }:#{conn.port}")
        end
 
-       location = ("#{scheme}://#{conn.host }:#{conn.port}")
+       location
           |> URI.merge(Path.join(ExTus.Config.upload_url, identifier))
           |> to_string
 
