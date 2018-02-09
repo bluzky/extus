@@ -172,12 +172,12 @@ defmodule ExTus.Actions do
 
        if Mix.env == :prod do
          scheme = :https
-         location = ("#{scheme}://#{conn.host }")
+         base_url = ("#{scheme}://#{conn.host }")
        else
-         location = ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+         base_url = ("#{conn.scheme}://#{conn.host }:#{conn.port}")
        end
 
-       location
+       location = base_url
           |> URI.merge(Path.join(ExTus.Config.upload_url, identifier))
           |> to_string
 
