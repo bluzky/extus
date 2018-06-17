@@ -87,7 +87,7 @@ defmodule ExTus.UploadCache do
      {:ok, time, _} = DateTime.from_iso8601(data.started_at)
      time = DateTime.to_unix(time)
      now = DateTime.utc_now |> DateTime.to_unix()
-     (now - time) > @expire_after
+     (now - time) > @expired_after
    end)
    |> Enum.map(fn ({key, data}) ->
      storage = Application.get_env(:extus, :storage)
