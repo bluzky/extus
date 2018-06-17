@@ -1,6 +1,6 @@
 defmodule ExTus.Storage.S3 do
   use ExTus.Storage
-  
+
   def storage_dir() do
     time = DateTime.utc_now
     "#{time.year}/#{time.month}/#{time.day}"
@@ -15,7 +15,7 @@ defmodule ExTus.Storage.S3 do
   def initiate_file(file_name) do
     dir = storage_dir()
     filename = filename(file_name)
-    file_path = Path.join([base_dir, dir, filename])
+    file_path = Path.join([base_dir(), dir, filename])
 
 
     %{bucket: "", path: file_path, opts: [], upload_id: nil}
@@ -64,7 +64,7 @@ defmodule ExTus.Storage.S3 do
   end
 
   def url(file) do
-    Path.join asset_host, file
+    Path.join asset_host(), file
   end
 
   def abort_upload(%{identifier: upload_id, filename: file}) do
@@ -78,7 +78,7 @@ defmodule ExTus.Storage.S3 do
     |> ExAws.S3.delete_object(file)
     |> ExAws.request([host: endpoint(bucket())])
   end
-  
+
   defp base_dir() do
    Application.get_env(:extus, :base_dir)
   end
@@ -103,7 +103,7 @@ defmodule ExTus.Storage.S3 do
   end
 
   defp host(bucket) do
-    case virtual_host do
+    case virtual_host() do
       true -> "https://#{bucket}.s3.amazonaws.com"
       _    -> "https://s3.amazonaws.com/#{bucket}"
     end
