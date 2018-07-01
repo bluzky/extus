@@ -75,7 +75,6 @@ defmodule ExTus.UploadCache do
   end
 
   def handle_info(:clean, state) do
-    Logger.info("Run ExTus cleaner at: #{inspect(DateTime.utc_now())}")
     Process.send_after(self(), :clean, @clean_interval)
     do_cleaning()
     {:noreply, state}
