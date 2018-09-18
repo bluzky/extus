@@ -181,7 +181,7 @@ defmodule ExTus.Actions do
        location = base_url
           |> URI.merge(Path.join(
           case upload_type do
-            "VIDEO" -> Extus.Config.video_upload_url
+            "VIDEO" -> ExTus.Config.video_upload_url
             _ -> ExTus.Config.upload_url
           end, 
           identifier))
