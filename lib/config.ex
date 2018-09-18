@@ -1,6 +1,7 @@
 defmodule ExTus.Config do
   # this is some hard code config, it will be configurable
   @upload_url  "/files"
+  @video_upload_url "/videos"
   @upload_folder  "./uploads/"
   @tus_api_version  "1.0.0"
   @tus_api_version_supported  "1.0.0"
@@ -22,6 +23,7 @@ defmodule ExTus.Config do
   @hash_algorithms ["sha1", "md5"]
 
   def upload_url, do: @upload_url
+  def video_upload_url, do: @video_upload_url
   def upload_folder, do: @upload_folder
   def tus_api_version, do: @tus_api_version
   def tus_api_version_supported, do: @tus_api_version_supported

@@ -145,6 +145,7 @@ defmodule ExTus.Actions do
   def post(conn, create_cb)do
      headers = Utils.read_headers(conn)
 
+     upload_type = headers["upload-type"]
      meta = Utils.parse_meta_data(headers["upload-metadata"])
      {upload_length, _} = Integer.parse(headers["upload-length"])
 
@@ -178,7 +179,12 @@ defmodule ExTus.Actions do
        end
 
        location = base_url
-          |> URI.merge(Path.join(ExTus.Config.upload_url, identifier))
+          |> URI.merge(Path.join(
+          case upload_type do
+            "VIDEO" -> Extus.Config.video_upload_url
+            _ -> ExTus.Config.upload_url
+          end, 
+          identifier))
           |> to_string
 
        conn
