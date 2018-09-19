@@ -171,11 +171,12 @@ defmodule ExTus.Actions do
          create_cb.(info)
        end
 
+       base_url =
        if Mix.env == :prod do
          scheme = :https
-         base_url = ("#{scheme}://#{conn.host }")
+          ("#{scheme}://#{conn.host }")
        else
-         base_url = ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+         ("#{conn.scheme}://#{conn.host }:#{conn.port}")
        end
 
        location = base_url
