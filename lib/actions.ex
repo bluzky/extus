@@ -171,22 +171,7 @@ defmodule ExTus.Actions do
          create_cb.(info)
        end
 
-       base_url =
-       if Mix.env == :prod do
-         scheme = :https
-          ("#{scheme}://#{conn.host }")
-       else
-         ("#{conn.scheme}://#{conn.host }:#{conn.port}")
-       end
-
-       location = base_url
-          |> URI.merge(Path.join(
-          case upload_type do
-            "VIDEO" -> ExTus.Config.video_upload_url
-            _ -> ExTus.Config.upload_url
-          end, 
-          identifier))
-          |> to_string
+       location = get_upload_location(conn, upload_type, identifier)
 
        conn
        |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
@@ -230,5 +215,26 @@ defmodule ExTus.Actions do
     else
       conn
     end
+  end
+
+  def get_upload_location(conn, upload_type, identifier) do
+    base_url =
+       if Mix.env == :prod do
+        scheme = :https
+          ("#{scheme}://#{conn.host }")
+       else
+         ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+       end
+
+    Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Mix.env, base_url})}")
+
+    base_url
+          |> URI.merge(Path.join(
+          case upload_type do
+            "VIDEO" -> ExTus.Config.video_upload_url
+            _ -> ExTus.Config.upload_url
+          end, 
+          identifier))
+          |> to_string
   end
 end
