@@ -145,6 +145,7 @@ defmodule ExTus.Actions do
   def post(conn, create_cb)do
      headers = Utils.read_headers(conn)
 
+     upload_type = headers["upload-type"]
      meta = Utils.parse_meta_data(headers["upload-metadata"])
      {upload_length, _} = Integer.parse(headers["upload-length"])
 
@@ -170,18 +171,7 @@ defmodule ExTus.Actions do
          create_cb.(info)
        end
 
-       base_url =
-        case Mix.env do
-          :prod ->
-            scheme = :https
-            ("#{scheme}://#{conn.host }")
-          _ ->
-            ("#{conn.scheme}://#{conn.host }:#{conn.port}")
-        end
-
-       location = base_url
-          |> URI.merge(Path.join(ExTus.Config.upload_url, identifier))
-          |> to_string
+       location = get_upload_location(conn, upload_type, identifier)
 
        conn
        |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
@@ -225,5 +215,27 @@ defmodule ExTus.Actions do
     else
       conn
     end
+  end
+
+  def get_upload_location(conn, upload_type, identifier) do
+    base_url =
+    case Mix.env do
+      :prod ->
+        scheme = :https
+        ("#{scheme}://#{conn.host }")
+      _ ->
+        ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+    end
+
+    Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Mix.env, base_url})}")
+
+    base_url
+          |> URI.merge(Path.join(
+          case upload_type do
+            "VIDEO_ANSWER" -> ExTus.Config.video_upload_url
+            _ -> ExTus.Config.upload_url
+          end, 
+          identifier))
+          |> to_string
   end
 end
