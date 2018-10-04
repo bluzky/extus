@@ -219,12 +219,13 @@ defmodule ExTus.Actions do
 
   def get_upload_location(conn, upload_type, identifier) do
     base_url =
-       if Mix.env == :prod do
+    case Mix.env do
+      :prod ->
         scheme = :https
-          ("#{scheme}://#{conn.host }")
-       else
-         ("#{conn.scheme}://#{conn.host }:#{conn.port}")
-       end
+        ("#{scheme}://#{conn.host }")
+      _ ->
+        ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+    end
 
     Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Mix.env, base_url})}")
 
