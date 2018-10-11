@@ -219,7 +219,7 @@ defmodule ExTus.Actions do
 
   def get_upload_location(conn, upload_type, identifier) do
     base_url =
-    case Mix.env do
+    case Application.get_env(:extus, :environment) do
       :prod ->
         scheme = :https
         ("#{scheme}://#{conn.host }")
@@ -227,14 +227,14 @@ defmodule ExTus.Actions do
         ("#{conn.scheme}://#{conn.host }:#{conn.port}")
     end
 
-    Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Mix.env, base_url})}")
+    Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Application.get_env(:extus, :environment), base_url})}")
 
     base_url
           |> URI.merge(Path.join(
           case upload_type do
             "VIDEO_ANSWER" -> ExTus.Config.video_upload_url
             _ -> ExTus.Config.upload_url
-          end, 
+          end,
           identifier))
           |> to_string
   end
