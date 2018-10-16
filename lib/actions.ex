@@ -66,6 +66,7 @@ defmodule ExTus.Actions do
 
       #%{size: current_offset} = File.stat!(file_path)
       if  offset != upload_info.offset do
+        Logger.error("UPLOAD OFFSET ERROR IN TUS:PATCH: #{inspect({offset, upload_info})}")
         conn
         |> Utils.set_base_resp
         |> resp(409, "Conflict")
@@ -83,6 +84,7 @@ defmodule ExTus.Actions do
                 |> Base.encode32()
 
               if checksum != hash_val do
+                Logger.error("TUS PATCH CHECKSUM ERROR: #{inspect({checksum, hash_val})}")
                 conn
                 |> Utils.set_base_resp
                 |> resp(460, "Checksum Mismatch")
@@ -93,7 +95,8 @@ defmodule ExTus.Actions do
             else
               write_append_data(conn, upload_info, binary, complete_cb)
             end
-          {:error, _term} ->
+          {:error, term} ->
+            Logger.error("ERROR IN TUS:PATCH: #{inspect({upload_info, term})}")
             conn
             |> Utils.set_base_resp
             |> resp(500, "Server error")
@@ -103,28 +106,32 @@ defmodule ExTus.Actions do
     end
   end
 
-  defp write_append_data(conn, upload_info, binary, complete_cb \\ nil) do
-    url = ""
-    storage.append_data(upload_info, binary)
+  defp write_append_data(conn, upload_info, binary, complete_cb) do
+    storage().append_data(upload_info, binary)
     |> case do
       {:ok, upload_info} ->
         UploadCache.update(upload_info)
 
+        url =
         if upload_info.offset >= upload_info.size do
-          rs = storage.complete_file(upload_info)
+          rs = storage().complete_file(upload_info)
 
           # if upload fail remove uploaded file
           with {:error, err} <- rs do
-            Logger.warn inspect err
-            storage.abort_upload(upload_info)
+            Logger.warn("ERROR FINISHING TUS UPLOAD: #{inspect({err})}")
+            storage().abort_upload(upload_info)
           end
 
           # remove cache info
           UploadCache.delete(upload_info.identifier)
 
           if not is_nil(complete_cb) do
-            url = complete_cb.(upload_info)
+            complete_cb.(upload_info)
+          else
+            ""
           end
+        else
+          ""
         end
 
         conn
@@ -157,7 +164,7 @@ defmodule ExTus.Actions do
          (meta["filename"] || "")
          |> Base.decode64!
 
-       {:ok, {identifier, filename}} = storage.initiate_file(file_name)
+       {:ok, {identifier, filename}} = storage().initiate_file(file_name)
 
        info = %UploadInfo{
          identifier: identifier,
@@ -190,7 +197,7 @@ defmodule ExTus.Actions do
       |> Utils.set_base_resp
       |> resp(404, "Not Found")
     else
-      case storage.delete(upload_info) do
+      case storage().delete(upload_info) do
         :ok ->
           conn
           |> Utils.set_base_resp
