@@ -231,7 +231,7 @@ defmodule ExTus.Actions do
         scheme = :https
         ("#{scheme}://#{conn.host }")
       _ ->
-        ("#{conn.scheme}://#{conn.host }:#{conn.port}")
+        ("#{scheme}://#{conn.host }")
     end
 
     Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Application.get_env(:extus, :environment), base_url})}")
