@@ -231,6 +231,7 @@ defmodule ExTus.Actions do
         scheme = :https
         ("#{scheme}://#{conn.host }")
       _ ->
+        scheme = :https
         ("#{scheme}://#{conn.host }")
     end
 
