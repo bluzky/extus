@@ -66,7 +66,7 @@ defmodule ExTus.Actions do
 
       #%{size: current_offset} = File.stat!(file_path)
       if  offset != upload_info.offset do
-        Logger.error("UPLOAD OFFSET ERROR IN TUS:PATCH: #{inspect({offset, upload_info})}")
+        Logger.error("[TUS][UPLOAD_OFFSET_ERROR: #{inspect({offset, upload_info})}]")
         conn
         |> Utils.set_base_resp
         |> resp(409, "Conflict")
@@ -84,7 +84,7 @@ defmodule ExTus.Actions do
                 |> Base.encode32()
 
               if checksum != hash_val do
-                Logger.error("TUS PATCH CHECKSUM ERROR: #{inspect({checksum, hash_val})}")
+                Logger.error("[TUS][PATCH_CHECKSUM_ERROR: #{inspect({checksum, hash_val})}]")
                 conn
                 |> Utils.set_base_resp
                 |> resp(460, "Checksum Mismatch")
@@ -96,10 +96,11 @@ defmodule ExTus.Actions do
               write_append_data(conn, upload_info, binary, complete_cb)
             end
           {:error, term} ->
-            Logger.error("ERROR IN TUS:PATCH: #{inspect({upload_info, term})}")
+            error_str = inspect({upload_info, term, System.stacktrace})
+            Logger.error("[TUS][PATCH_ERROR: #{error_str}]")
             conn
             |> Utils.set_base_resp
-            |> resp(500, "Server error")
+            |> resp(500, "Tus Patch Error: #{error_str}")
         end
       end
 
@@ -118,7 +119,7 @@ defmodule ExTus.Actions do
 
           # if upload fail remove uploaded file
           with {:error, err} <- rs do
-            Logger.warn("ERROR FINISHING TUS UPLOAD: #{inspect({err})}")
+            Logger.warn("[TUS][WRITE_APPEND_COMPLETION_ERROR: #{inspect({upload_info, err})}]")
             storage().abort_upload(upload_info)
           end
 
@@ -142,10 +143,11 @@ defmodule ExTus.Actions do
         |> resp(204, "")
 
       {:error, err} ->
-        Logger.warn inspect err
+        error_str = inspect({upload_info, err, System.stacktrace})
+        Logger.error("[TUS][WRITE_APPEND_ERROR: #{error_str}]")
         conn
         |> Utils.set_base_resp
-        |> resp(404, "")
+        |> resp(404, "Tus Error in Write Append Data: #{error_str}")
     end
   end
 
@@ -158,7 +160,7 @@ defmodule ExTus.Actions do
 
      if upload_length > ExTus.Config.tus_max_file_size do
        conn
-       |> resp(413, "")
+       |> resp(413, "Tus Max File Size Exceeded: #{upload_length}")
      else
        file_name =
          (meta["filename"] || "")
@@ -235,7 +237,7 @@ defmodule ExTus.Actions do
         ("#{scheme}://#{conn.host }")
     end
 
-    Logger.info("UPLOAD LOCATION: #{inspect({conn, upload_type, identifier, Application.get_env(:extus, :environment), base_url})}")
+    Logger.info("[TUS][POST][GET_UPLOAD_LOCATION][UPLOAD_TYPE: #{inspect(upload_type)}][IDENTIFIER: #{inspect(identifier)}][ENV: #{inspect(Application.get_env(:extus, :environment))}][BASE_URL: #{inspect(base_url)}]")
 
     base_url
           |> URI.merge(Path.join(
