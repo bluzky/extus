@@ -96,7 +96,7 @@ defmodule ExTus.Actions do
               write_append_data(conn, upload_info, binary, complete_cb)
             end
           {:error, term} ->
-            error_str = inspect({upload_info, term, System.stacktrace})
+            error_str = inspect({upload_info, term})
             Logger.error("[TUS][PATCH_ERROR: #{error_str}]")
             conn
             |> Utils.set_base_resp
@@ -143,7 +143,7 @@ defmodule ExTus.Actions do
         |> resp(204, "")
 
       {:error, err} ->
-        error_str = inspect({upload_info, err, System.stacktrace})
+        error_str = inspect({upload_info, err})
         Logger.error("[TUS][WRITE_APPEND_ERROR: #{error_str}]")
         conn
         |> Utils.set_base_resp
