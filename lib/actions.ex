@@ -225,7 +225,6 @@ defmodule ExTus.Actions do
     if headers["access-control-request-method"] do
       conn
       |> put_resp_header("Access-Control-Allow-Methods", "POST, GET, HEAD, PATCH, DELETE, OPTIONS")
-      |> put_resp_header("Access-Control-Allow-Origin", "*")
       |> put_resp_header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata")
       |> put_resp_header("Access-Control-Max-Age", "86400")
     else
