@@ -10,6 +10,7 @@ defmodule ExTus.Actions do
   end
 
   def options(conn)do
+    Logger.info("[TUS][OPTIONS: #{inspect({ExTus.Config.tus_api_version, ExTus.Config.tus_api_version_supported, to_string(ExTus.Config.tus_max_file_size), Enum.join(ExTus.Config.extensions, ",")})}]")
     conn
     |> handle_preflight_request
     |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
