@@ -59,6 +59,7 @@ defmodule ExTus.Actions do
 
     [alg, checksum] = String.split(headers["upload-checksum"] || "_ _")
     if not is_nil(headers["upload-checksum"]) and not alg in ExTus.Config.hash_algorithms do
+      Logger.error("[TUS][UPLOAD_OFFSET_ERROR: Upload Checksum Null][HEADERS: #{inspect(headers)}]")
       conn
       |> Utils.set_base_resp
       |> resp(400, "Bad Request")
@@ -112,7 +113,8 @@ defmodule ExTus.Actions do
     |> case do
       {:ok, upload_info} ->
         UploadCache.update(upload_info)
-
+        
+        Logger.info("[TUS][WRITE_APPEND_DATA: INFO: #{inspect(upload_info)}]")
         url =
         if upload_info.offset >= upload_info.size do
           rs = storage().complete_file(upload_info)
