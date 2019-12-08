@@ -3,7 +3,7 @@ defmodule Extus.Mixfile do
 
   def project do
     [app: :extus,
-     version: "0.1.0",
+     version: "0.1.1",
      elixir: "~> 1.4",
      description: "An implementation of resumable upload protocol TUS in Elixir",
      build_embedded: Mix.env == :prod,
