@@ -91,6 +91,7 @@ defmodule ExTus.UploadCache do
    end)
    |> Enum.map(fn ({key, data}) ->
      storage = Application.get_env(:extus, :storage)
+     Logger.info("[TUS][CLEAN_UPLOAD: #{inspect(key)}][UPLOAD_DATA: #{inspect(data)}][TIME: #{inspect DateTime.utc_now}]")
      if storage, do: storage.abort_upload(data)
      :ets.delete(:upload_cache, key)
    end )
