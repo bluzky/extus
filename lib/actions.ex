@@ -175,11 +175,14 @@ defmodule ExTus.Actions do
 
        {:ok, {identifier, filename}} = storage().initiate_file(file_name)
 
+       user_id = (conn.assigns[:user_id] || headers["user_id"] || Kernel.inspect(Enum.random(1000_000_000..1000_000_000_000)))
+
        info = %UploadInfo{
          identifier: identifier,
          filename: filename,
          size: upload_length,
-         started_at: DateTime.utc_now |> DateTime.to_iso8601
+         started_at: DateTime.utc_now |> DateTime.to_iso8601,
+         options: %{"user_id" => user_id}
        }
        UploadCache.put(info)
 
