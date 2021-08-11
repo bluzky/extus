@@ -147,7 +147,7 @@ defmodule ExTus.Actions do
         |> Utils.put_cors_headers
         |> put_resp_header("Upload-Offset", "#{upload_info.offset}")
         |> put_resp_header("URL", "#{url}")
-        |> resp(204, "")
+        |> resp(204, "#{url}")
 
       {:error, err} ->
         error_str = inspect({upload_info, err})
