@@ -25,6 +25,6 @@ defmodule ExTus.Utils do
 
   def put_cors_headers(conn) do
     conn
-    |> put_resp_header("Access-Control-Expose-Headers", "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata")
+    |> put_resp_header("Access-Control-Expose-Headers", "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata, URL")
   end
 end
