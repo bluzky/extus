@@ -147,6 +147,7 @@ defmodule ExTus.Actions do
         |> Utils.put_cors_headers
         |> put_resp_header("Upload-Offset", "#{upload_info.offset}")
         |> put_resp_header("URL", "#{url}")
+        |> put_resp_header("Acccess-Control-Expose-Headers", "URL")
         |> resp(204, "")
 
       {:error, err} ->
