@@ -173,30 +173,39 @@ defmodule ExTus.Actions do
          (meta["filename"] || "")
          |> Base.decode64!
 
-       {:ok, {identifier, filename}} = storage().initiate_file(file_name)
+       file_ext = String.split(file_name,".") |> List.last() |> String.downcase()
+       valid_ext = Enum.member?(["jpg","jpeg","png","mpg","mp2","mpeg","mpe","mpv",
+         "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf"], file_ext)
 
-       user_id = (conn.assigns[:user_id] || headers["user_id"] || Kernel.inspect(Enum.random(1000_000_000..1000_000_000_000)))
+       if valid_ext do
+           {:ok, {identifier, filename}} = storage().initiate_file(file_name)
 
-       info = %UploadInfo{
-         identifier: identifier,
-         filename: filename,
-         size: upload_length,
-         started_at: DateTime.utc_now |> DateTime.to_iso8601,
-         options: %{"user_id" => user_id}
-       }
-       UploadCache.put(info)
+           user_id = (conn.assigns[:user_id] || Kernel.inspect(Enum.random(1000_000_000..1000_000_000_000)))
 
-       if create_cb do
-         create_cb.(info)
+           info = %UploadInfo{
+             identifier: identifier,
+             filename: filename,
+             size: upload_length,
+             started_at: DateTime.utc_now |> DateTime.to_iso8601,
+             options: %{"user_id" => user_id}
+           }
+           UploadCache.put(info)
+
+           if create_cb do
+             create_cb.(info)
+           end
+
+           location = get_upload_location(conn, upload_type, identifier)
+
+           conn
+           |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
+           |> put_resp_header("Location", location)
+           |> Utils.put_cors_headers
+           |> resp(201, "")
+       else
+          conn
+          |> resp(415, "Unsupported media type")
        end
-
-       location = get_upload_location(conn, upload_type, identifier)
-
-       conn
-       |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
-       |> put_resp_header("Location", location)
-       |> Utils.put_cors_headers
-       |> resp(201, "")
      end
   end
 
