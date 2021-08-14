@@ -175,7 +175,7 @@ defmodule ExTus.Actions do
 
        file_ext = String.split(file_name,".") |> List.last() |> String.downcase()
        valid_ext = Enum.member?(["jpg","jpeg","png","mpg","mp2","mpeg","mpe","mpv",
-         "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf"], file_ext)
+         "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf", "opus"], file_ext)
 
        if valid_ext do
            {:ok, {identifier, filename}} = storage().initiate_file(file_name)
