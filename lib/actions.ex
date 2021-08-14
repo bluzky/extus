@@ -121,26 +121,28 @@ defmodule ExTus.Actions do
         
         Logger.info("[TUS][WRITE_APPEND_DATA: INFO: #{inspect(upload_info)}]")
         url =
-        if upload_info.offset >= upload_info.size do
-          rs = storage().complete_file(upload_info)
+          if upload_info.offset >= upload_info.size do
+            rs = storage().complete_file(upload_info)
 
-          # if upload fail remove uploaded file
-          with {:error, err} <- rs do
-            Logger.warn("[TUS][WRITE_APPEND_COMPLETION_ERROR: #{inspect({upload_info, err})}]")
-            storage().abort_upload(upload_info)
-          end
+            # if upload fail remove uploaded file
+            with {:error, err} <- rs do
+              Logger.warn("[TUS][WRITE_APPEND_COMPLETION_ERROR: #{inspect({upload_info, err})}]")
+              storage().abort_upload(upload_info)
+            end
 
-          # remove cache info
-          UploadCache.delete(upload_info.identifier)
+            # remove cache info
+            UploadCache.delete(upload_info.identifier)
 
-          if not is_nil(complete_cb) do
-            complete_cb.(upload_info)
+            if not is_nil(complete_cb) do
+              complete_cb.(upload_info)
+            else
+              ""
+            end
           else
             ""
           end
-        else
-          ""
-        end
+
+        storage().delete(upload_info)
 
         conn
         |> Utils.set_base_resp
@@ -174,10 +176,13 @@ defmodule ExTus.Actions do
          |> Base.decode64!
 
        file_ext = String.split(file_name,".") |> List.last() |> String.downcase()
-       valid_ext = Enum.member?(["jpg","jpeg","png","mpg","mp2","mpeg","mpe","mpv",
-         "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf", "opus"], file_ext)
 
-       if valid_ext do
+       allowed_file_extension =
+               Application.get_env(:extus, :allowed_file_extension, ["jpg","jpeg","png","mpg","mp2", "mp3", "mpeg","mpe","mpv",
+                                    "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf", "opus"])
+       allowed = Enum.member?(allowed_file_extension, file_ext)
+
+       if allowed do
            {:ok, {identifier, filename}} = storage().initiate_file(file_name)
 
            user_id = (conn.assigns[:user_id] || Kernel.inspect(Enum.random(1000_000_000..1000_000_000_000)))
