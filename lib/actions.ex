@@ -142,7 +142,9 @@ defmodule ExTus.Actions do
             ""
           end
 
-        storage().delete(upload_info)
+        # Last time I tried to put file delete, video upload of iOS files had not complete and we saw corrupt files in S3.
+        # Need find create way for s3 completion
+        #storage().delete(upload_info)
 
         conn
         |> Utils.set_base_resp
