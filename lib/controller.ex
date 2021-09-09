@@ -10,7 +10,7 @@ defmodule ExTus.Controller do
       end
 
       def patch(conn, %{"file" => file} = params)do
-        ExTus.Actions.patch(conn, file, &on_complete_upload/1)
+        ExTus.Actions.patch(conn, file, &on_complete_upload/2)
       end
 
       def post(conn, _params)do
@@ -25,11 +25,11 @@ defmodule ExTus.Controller do
 
       end
 
-      def on_complete_upload(_) do
+      def on_complete_upload(_, _) do
 
       end
 
-      defoverridable [on_begin_upload: 1, on_complete_upload: 1]
+      defoverridable [on_begin_upload: 1, on_complete_upload: 2]
     end
   end
 end

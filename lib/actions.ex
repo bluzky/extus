@@ -134,7 +134,7 @@ defmodule ExTus.Actions do
             UploadCache.delete(upload_info.identifier)
 
             if not is_nil(complete_cb) do
-              complete_cb.(upload_info)
+              complete_cb.(upload_info, conn.req_headers)
             else
               ""
             end
