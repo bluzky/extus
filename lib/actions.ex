@@ -10,13 +10,15 @@ defmodule ExTus.Actions do
   end
 
   def options(conn)do
-    Logger.info("[TUS][OPTIONS: #{inspect({ExTus.Config.tus_api_version, ExTus.Config.tus_api_version_supported, to_string(ExTus.Config.tus_max_file_size), Enum.join(ExTus.Config.extensions, ",")})}]")
+    tus_max_file_size =
+      Application.get_env(:extus, :tus_max_file_size, 536870912)
+    Logger.info("[TUS][OPTIONS: #{inspect({ExTus.Config.tus_api_version, ExTus.Config.tus_api_version_supported, to_string(tus_max_file_size), Enum.join(ExTus.Config.extensions, ",")})}]")
     conn
     |> handle_preflight_request
     |> put_resp_header("Tus-Resumable", ExTus.Config.tus_api_version)
     |> put_resp_header("Tus-Version", ExTus.Config.tus_api_version_supported)
     |> put_resp_header("Tus-Checksum-Algorithm", "sha1")
-    |> put_resp_header("Tus-Max-Size", to_string(ExTus.Config.tus_max_file_size))
+    |> put_resp_header("Tus-Max-Size", to_string(tus_max_file_size))
     |> put_resp_header("Tus-Extension", Enum.join(ExTus.Config.extensions, ","))
     |> resp(200, "")
   end
@@ -42,7 +44,7 @@ defmodule ExTus.Actions do
         |> Enum.join(",")
 
       Logger.info("[TUS][HEAD: #{inspect(upload_meta)}]")
-      
+
       if upload_meta not in ["", nil] do
         put_resp_header(conn, "Upload-Metadata", upload_meta)
       else
@@ -100,7 +102,7 @@ defmodule ExTus.Actions do
             else
               write_append_data(conn, upload_info, binary, complete_cb)
             end
-          
+
           {:error, term} ->
             error_str = inspect({upload_info, term})
             Logger.error("[TUS][PATCH_ERROR: #{error_str}]")
@@ -118,7 +120,7 @@ defmodule ExTus.Actions do
     |> case do
       {:ok, upload_info} ->
         UploadCache.update(upload_info)
-        
+
         Logger.info("[TUS][WRITE_APPEND_DATA: INFO: #{inspect(upload_info)}]")
         url =
           if upload_info.offset >= upload_info.size do
@@ -169,7 +171,7 @@ defmodule ExTus.Actions do
      meta = Utils.parse_meta_data(headers["upload-metadata"])
      {upload_length, _} = Integer.parse(headers["upload-length"])
 
-     if upload_length > ExTus.Config.tus_max_file_size do
+     if upload_length > Application.get_env(:extus, :tus_max_file_size, 536870912) do
        conn
        |> resp(413, "Tus Max File Size Exceeded: #{upload_length}")
      else
