@@ -8,7 +8,8 @@ config :extus,
   expired_after: 24 * 60 * 60 * 1000, #clean uncompleted upload after 1 day
   clean_interval: 30 * 60 * 1000, # start cleaning job after 30min
   allowed_file_extension: ["jpg","jpeg","png","mpg","mp2", "mp3", "mpeg","mpe","mpv",
-   "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf", "opus", "webm"]
+   "mp4","m4p","m4v","ogg","avi","wmv","mov","qt","flv","swf", "opus", "webm"],
+  tus_max_file_size: 536870912 # 512MB
 
 # config :extus,
 #   base_dir: "dev",
