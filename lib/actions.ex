@@ -29,7 +29,10 @@ defmodule ExTus.Actions do
       Logger.error("[TUS][HEAD_ERROR: #{inspect(upload_info)}][NOT_FOUND]")
       conn
       |> Utils.set_base_resp
-      |> resp(404, "Not Found! #{inspect(identifier)}")
+      |> resp(404, Jason.encode!(%{
+        message: "Not Found! #{inspect(identifier)}",
+        details: "[TUS][HEAD_ERROR: #{inspect(upload_info)}][NOT_FOUND]"
+      }))
 
     else
       upload_meta =
@@ -68,7 +71,10 @@ defmodule ExTus.Actions do
       Logger.error("[TUS][UPLOAD_OFFSET_ERROR: Upload Checksum Null][HEADERS: #{inspect(headers)}]")
       conn
       |> Utils.set_base_resp
-      |> resp(400, "Bad Request")
+      |> resp(400, Jason.encode!(%{
+        message: "Bad Request",
+        details: "[TUS][UPLOAD_OFFSET_ERROR: Upload Checksum Null][HEADERS: #{inspect(headers)}]"
+      }))
     else
 
       #%{size: current_offset} = File.stat!(file_path)
@@ -76,7 +82,10 @@ defmodule ExTus.Actions do
         Logger.error("[TUS][UPLOAD_OFFSET_ERROR: #{inspect({offset, upload_info})}]")
         conn
         |> Utils.set_base_resp
-        |> resp(409, "Conflict")
+        |> resp(409, Jason.encode!(%{
+          message: "Conflict",
+          details: "[TUS][UPLOAD_OFFSET_ERROR: #{inspect({offset, upload_info})}]"
+        }))
       else
         #read data Max chunk size is 8MB, if transferred data > 8MB, ignore it
         case read_body(conn) do
@@ -94,7 +103,10 @@ defmodule ExTus.Actions do
                 Logger.error("[TUS][PATCH_CHECKSUM_ERROR: #{inspect({checksum, hash_val})}]")
                 conn
                 |> Utils.set_base_resp
-                |> resp(460, "Checksum Mismatch")
+                |> resp(460, Jason.encode!(%{
+                  message: "Checksum Mismatch",
+                  details: "[TUS][PATCH_CHECKSUM_ERROR: #{inspect({checksum, hash_val})}]"
+                }))
 
               else
                 write_append_data(conn, upload_info, binary, complete_cb)
@@ -108,7 +120,10 @@ defmodule ExTus.Actions do
             Logger.error("[TUS][PATCH_ERROR: #{error_str}]")
             conn
             |> Utils.set_base_resp
-            |> resp(500, "Tus Patch Error: #{error_str}")
+            |> resp(500, Jason.encode!(%{
+              message: "Tus Patch Error",
+              details: "[TUS][PATCH_ERROR: #{error_str}]"
+            }))
         end
       end
 
@@ -160,7 +175,10 @@ defmodule ExTus.Actions do
         Logger.error("[TUS][WRITE_APPEND_ERROR: #{error_str}]")
         conn
         |> Utils.set_base_resp
-        |> resp(404, "Tus Error in Write Append Data: #{error_str}")
+        |> resp(404, Jason.encode!(%{
+          message: "Tus Error in Write Append Data",
+          details: "[TUS][WRITE_APPEND_ERROR: #{error_str}]"
+        }))
     end
   end
 
@@ -173,7 +191,10 @@ defmodule ExTus.Actions do
 
      if upload_length > Application.get_env(:extus, :tus_max_file_size, 536870912) do
        conn
-       |> resp(413, "Tus Max File Size Exceeded: #{upload_length}")
+       |> resp(413, Jason.encode!(%{
+        message: "Tus Max File Size Exceeded",
+        details: "[TUS][UPLOAD_ERROR: Max File Size Exceeded: #{upload_length}]"
+      }))
      else
        file_name =
          (meta["filename"] || "")
@@ -213,7 +234,10 @@ defmodule ExTus.Actions do
            |> resp(201, "")
        else
           conn
-          |> resp(415, "Unsupported media type")
+          |> resp(415, Jason.encode!(%{
+            message: "Unsupported media type",
+            details: "[TUS][UNSUPPORTED_FILETYPE_ERROR: invalid filetype: #{file_ext}]"
+          }))
        end
      end
   end
@@ -225,7 +249,10 @@ defmodule ExTus.Actions do
     if is_nil(upload_info) do
       conn
       |> Utils.set_base_resp
-      |> resp(404, "Not Found")
+      |> resp(404, Jason.encode!(%{
+        message: "Not Found",
+        details: "[TUS][DELETE_ERROR: Identifier not found, #{inspect(identifier)}]"
+      }))
     else
       case storage().delete(upload_info) do
         :ok ->
@@ -236,7 +263,10 @@ defmodule ExTus.Actions do
         _ ->
           conn
           |> Utils.set_base_resp
-          |> resp(500, "Server Error")
+          |> resp(500, Jason.encode!(%{
+            message: "Server Error",
+            details: "[TUS][DELETE_ERROR: Unable to delete, #{inspect(identifier)}]"
+          }))
       end
     end
   end
