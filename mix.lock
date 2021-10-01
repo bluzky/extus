@@ -1,6 +1,7 @@
 %{
   "earmark": {:hex, :earmark, "1.2.3", "206eb2e2ac1a794aa5256f3982de7a76bf4579ff91cb28d0e17ea2c9491e46a4", [:mix], [], "hexpm", "3b1dcad3067985dd8618c38399a8ee9c4e652d52a17a4aae7a6d6fc4fcc24856"},
   "ex_doc": {:hex, :ex_doc, "0.17.1", "39f777415e769992e6732d9589dc5846ea587f01412241f4a774664c746affbb", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm", "51f7ad538e0e608a61f3c64106e0f7b64c500f1ad829c128e56c22d5cb7e736f"},
+  "jason": {:hex, :jason, "1.2.2", "ba43e3f2709fd1aa1dce90aaabfd039d000469c05c56f0b8e31978e03fa39052", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "18a228f5f0058ee183f29f9eae0805c6e59d61c3b006760668d8d18ff0d12179"},
   "mime": {:hex, :mime, "1.1.0", "01c1d6f4083d8aa5c7b8c246ade95139620ef8effb009edde934e0ec3b28090a", [:mix], [], "hexpm", "33dd09e615daab5668c15cc3a33829892728fdbed910ab0c0a0edb06b45fc54d"},
   "persistent_ets": {:hex, :persistent_ets, "0.1.0", "a9ea1d6e41094441bb7fd3ea6a5717b66de82343bc6a2899e678a5bad46e495b", [:mix], [], "hexpm", "ab0be0f5aa6963f3d6fc712fc37341e75ca7beef46cf46ced2b66af908c9b55f"},
   "plug": {:hex, :plug, "1.4.3", "236d77ce7bf3e3a2668dc0d32a9b6f1f9b1f05361019946aae49874904be4aed", [:mix], [{:cowboy, "~> 1.0.1 or ~> 1.1", [hex: :cowboy, repo: "hexpm", optional: true]}, {:mime, "~> 1.0", [hex: :mime, repo: "hexpm", optional: false]}], "hexpm", "c1c408c57a1e4c88c365b9aff1198c350e22b765dbb97a460e9e6bd9364c6194"},

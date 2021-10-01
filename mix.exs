@@ -46,7 +46,8 @@ defmodule Extus.Mixfile do
     [
       {:persistent_ets, "~> 0.1.0"},
       {:plug, "~> 1.3"},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:jason, "~> 1.2"},
     ]
   end
 end
