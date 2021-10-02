@@ -30,8 +30,8 @@ defmodule ExTus.Actions do
       conn
       |> Utils.set_base_resp
       |> resp(404, Jason.encode!(%{
-        message: "Not Found! #{inspect(identifier)}",
-        details: "[TUS][HEAD_ERROR: #{inspect(upload_info)}][NOT_FOUND]"
+        message: "Not Found",
+        details: "[TUS][HEAD_ERROR: Resource not found"
       }))
 
     else
@@ -121,8 +121,8 @@ defmodule ExTus.Actions do
             conn
             |> Utils.set_base_resp
             |> resp(500, Jason.encode!(%{
-              message: "Tus Patch Error",
-              details: "[TUS][PATCH_ERROR: #{error_str}]"
+              message: "Server Error",
+              details: "[TUS][PATCH_ERROR: Unable to patch]"
             }))
         end
       end
@@ -176,8 +176,8 @@ defmodule ExTus.Actions do
         conn
         |> Utils.set_base_resp
         |> resp(404, Jason.encode!(%{
-          message: "Tus Error in Write Append Data",
-          details: "[TUS][WRITE_APPEND_ERROR: #{error_str}]"
+          message: "Not Found",
+          details: "[TUS][PATCH_ERROR]: Resource not found"
         }))
     end
   end
@@ -251,7 +251,7 @@ defmodule ExTus.Actions do
       |> Utils.set_base_resp
       |> resp(404, Jason.encode!(%{
         message: "Not Found",
-        details: "[TUS][DELETE_ERROR: Identifier not found, #{inspect(identifier)}]"
+        details: "[TUS][DELETE_ERROR: Resource not found}]"
       }))
     else
       case storage().delete(upload_info) do
@@ -265,7 +265,7 @@ defmodule ExTus.Actions do
           |> Utils.set_base_resp
           |> resp(500, Jason.encode!(%{
             message: "Server Error",
-            details: "[TUS][DELETE_ERROR: Unable to delete, #{inspect(identifier)}]"
+            details: "[TUS][DELETE_ERROR: Unable to delete]"
           }))
       end
     end
