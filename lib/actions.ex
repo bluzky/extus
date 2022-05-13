@@ -291,7 +291,7 @@ defmodule ExTus.Actions do
         UploadCache.put(info)
 
         if create_cb do
-          create_cb.(info)
+          create_cb.(info, conn.req_headers)
         end
 
         location = get_upload_location(conn, upload_type, identifier)

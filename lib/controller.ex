@@ -14,14 +14,14 @@ defmodule ExTus.Controller do
       end
 
       def post(conn, _params)do
-        ExTus.Actions.post(conn, &on_begin_upload/1)
+        ExTus.Actions.post(conn, &on_begin_upload/2)
       end
 
       def delete(conn, %{"file" => file} = params)do
         ExTus.Actions.delete(conn, file)
       end
 
-      def on_begin_upload(_) do
+      def on_begin_upload(_, _) do
 
       end
 
@@ -29,7 +29,7 @@ defmodule ExTus.Controller do
 
       end
 
-      defoverridable [on_begin_upload: 1, on_complete_upload: 2]
+      defoverridable [on_begin_upload: 2, on_complete_upload: 2]
     end
   end
 end
