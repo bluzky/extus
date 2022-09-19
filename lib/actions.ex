@@ -228,7 +228,12 @@ defmodule ExTus.Actions do
   def post(conn, create_cb) do
     headers = Utils.read_headers(conn)
 
-    upload_type = headers["upload-type"]
+    # Identify path for Profile Image
+    upload_type = if conn.request_path == "/profile-image" do
+      "PROFILE_IMAGE"
+    else
+      headers["upload-type"]
+    end
     meta = Utils.parse_meta_data(headers["upload-metadata"])
     {upload_length, _} = Integer.parse(headers["upload-length"])
 
@@ -389,6 +394,7 @@ defmodule ExTus.Actions do
       Path.join(
         case upload_type do
           "VIDEO_ANSWER" -> ExTus.Config.video_upload_url()
+          "PROFILE_IMAGE" -> ExTus.Config.profile_image_url()
           _ -> ExTus.Config.upload_url()
         end,
         identifier
